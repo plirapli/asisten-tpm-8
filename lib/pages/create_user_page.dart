@@ -87,7 +87,6 @@ class _CreateUserPageState extends State<CreateUserPage> {
                     setState(() {
                       _gender = event;
                     });
-                    print(_gender);
                   },
                 ),
                 Text("Male"),
@@ -104,7 +103,6 @@ class _CreateUserPageState extends State<CreateUserPage> {
                     setState(() {
                       _gender = event;
                     });
-                    print(_gender);
                   },
                 ),
                 Text("Female"),
