@@ -11,106 +11,138 @@ class CreateUserPage extends StatefulWidget {
 }
 
 class _CreateUserPageState extends State<CreateUserPage> {
-  final TextEditingController _name = TextEditingController();
-  final TextEditingController _email = TextEditingController();
-  String? _gender;
+  /* 
+    Controller dipake buat mengelola input teks dari TextField.
+    Di sini kita bikin controller buat input name sama email.
+    Buat input gender, hasilnya cukup kita simpan ke dalam string biasa karena kita make radio button
+  */
+  final name = TextEditingController();
+  final email = TextEditingController();
+  String? gender;
 
+  // Fungsi untuk membuat user ketika tombol "Create User" diklik
   Future<void> _createUser(BuildContext context) async {
-    String msg = "";
     try {
-      UserModel newUser = UserModel(
-        name: _name.text.trim(),
-        email: _email.text.trim(),
-        gender: _gender,
+      /*
+        Karena kita mau membuat user, maka kita juga perlu datanya.
+        Disini kita mengambil data nama, email, & gender yang dah diisi pada form,
+        Terus datanya itu disimpan ke dalam variabel "newUser" dengan tipe data User.
+      */
+      User newUser = User(
+        name: name.text.trim(),
+        email: email.text.trim(),
+        gender: gender,
       );
 
-      final Map<String, dynamic> response = await UserApi.createUser(newUser);
-      final status = response["status"];
-      msg = response["message"];
+      /*
+        Lakukan pemanggilan API create, setelah itu
+        simpan ke dalam variabel bernama "response"
+      */
+      final response = await UserApi.createUser(newUser);
 
-      if (status == "Success") {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(msg), duration: Duration(seconds: 2)),
-        );
+      /*
+        Jika response status "Success", 
+        maka tampilkan snackbar yg bertuliskan "Berhasil menambah user baru"
+      */
+      if (response["status"] == "Success") {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Berhasil menambah user baru")));
 
+        // Pindah ke halaman sebelumnya
         Navigator.pop(context);
+
+        // Untuk merefresh tampilan (menampilkan user baru ke dalam daftar)
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (BuildContext context) => const HomePage(),
           ),
         );
       } else {
-        throw Exception(msg);
+        // Jika response status "Error", maka kode akan dilempar ke bagian catch
+        throw Exception(response["message"]);
       }
-    } catch (e) {
-      SnackBar snackBar = SnackBar(content: Text(e.toString()));
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context)
-        ..removeCurrentSnackBar()
-        ..showSnackBar(snackBar);
+    } catch (error) {
+      /*
+        Jika user gagal menghapus, 
+        maka tampilkan snackbar dengan tulisan "Gagal: error-nya apa"
+      */
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Gagal: $error")));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Create User"), centerTitle: true),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+      appBar: AppBar(title: Text("Create User")),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: ListView(
           children: [
+            // Buat input nama user
             TextField(
-              controller: _name,
+              /*
+                Ngasi tau kalau ini input buat name, jadi segala hal yg kita ketikan 
+                bakalan disimpan ke dalam variabel "name" yg udah kita bikin di atas
+              */
+              controller: name,
               decoration: const InputDecoration(
-                labelText: "Name",
-                border: OutlineInputBorder(),
+                labelText: "Name", // <- Ngasi label
+                border: OutlineInputBorder(), // <- Ngasi border di form-nya
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 16), // <- Ngasi jarak antar widget
+            // Buat input email user
             TextField(
-              controller: _email,
+              /*
+                Ngasi tau kalau ini input buat email, jadi segala hal yg kita ketikan 
+                bakalan disimpan ke dalam variabel "email" yg udah kita bikin di atas
+              */
+              controller: email,
               decoration: const InputDecoration(
-                labelText: "Email",
-                border: OutlineInputBorder(),
+                labelText: "Email", // <- Ngasi label
+                border: OutlineInputBorder(), // <- Ngasi border di form-nya
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 16), // <- Ngasi jarak antar widget
+            // Buat input gender (pake radio button)
             Text("Gender"),
             Row(
-              spacing: 4,
               children: [
+                // Radio button buat male
                 Radio(
                   value: "Male",
-                  groupValue: _gender,
+                  groupValue: gender,
                   onChanged: (event) {
+                    // Kalau male dipilih,
+                    // maka variabel "gender" akan memiliki nilai "Male"
                     setState(() {
-                      _gender = event;
+                      gender = event;
                     });
                   },
                 ),
                 Text("Male"),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Row(
-              spacing: 4,
-              children: [
+                // Radio button buat female
                 Radio(
                   value: "Female",
-                  groupValue: _gender,
+                  groupValue: gender,
                   onChanged: (event) {
+                    // Kalau female dipilih,
+                    // maka variabel "gender" akan memiliki nilai "Female"
                     setState(() {
-                      _gender = event;
+                      gender = event;
                     });
                   },
                 ),
                 Text("Female"),
               ],
             ),
-            const SizedBox(height: 16),
+            // Tombol buat bikin user baru
             ElevatedButton(
               onPressed: () {
+                // Jalankan fungsi _createUser() ketika tombol diklik
                 _createUser(context);
               },
               child: const Text("Create User"),
