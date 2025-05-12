@@ -42,7 +42,8 @@ class UserApi {
       Karena kita ingin mengirimkan data berupa teks, 
       maka pada bagian headers: Content-Type kita isi menjadi "application/json"
 
-      Pada bagian request body, kita akan mengambil parameter user kita fungsi ini dipanggil.
+      Pada bagian request body, kita akan mengisi request body dengan data yang telah diisi tadi.
+      Kita bisa memanfaatkan parameter "User user" untuk mengisinya.
       Kita juga perlu mengubahnya ke dalam bentuk JSON supaya bisa dikirimkan ke API.
       
       Terakhir, hasil dari POST request disimpan ke dalam variabel "response"
